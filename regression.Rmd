@@ -39,20 +39,20 @@ predictions <- exp(predict(model, data.frame(timestamp = predictionstamps)))
 plot(coinbase$timestamp, coinbase$price, type = "l",
   xlim = c(min(coinbase$timestamp), max(predictionstamps)),
   ylim = c(1e2, max(predictions, coinbase$price)), log = "y",
-  xlab = "Timestamp", ylab = "Price (log)",
-  main = "Coinbase price and a trendline for model: log(price) ~ poly(timestamp, 2)")
+  xlab = "Year", ylab = "Price (log)",
+  main = "Coinbase price and a trendline for a log-parabolic model",
+  axes = F)
+
+# Axes
+yearstarts <- as.double(as.POSIXlt(paste(2014:2020, "01-01 00:00:00", sep = "-")))
+axis(1, at = yearstarts, labels = 2014:2020)
+axis(2, at = c(1e2, 1e3, 1e4, 1e5, 1e6, 1e7), c("100", "1k", "10k", "100k", "1M", "10M"), las = 2)
+
+abline(v = yearstarts, lty = 2, col = "lightgray")
+abline(h = c(1e3, 1e4, 1e5, 1e6), lty = 2, col = "lightgray")
 
 # Add the trendline
 lines(predictionstamps, predictions, type = "l")
-
-# Mark year beginnings
-yearstarts <- as.double(as.POSIXlt(paste(2014:2020, "01-01 00:00:00", sep = "-")))
-abline(v = yearstarts, lty = 2)
-text(yearstarts, 1.5e6, 2014:2020)
-
-# 100k and 1M milestones
-abline(h = c(1e5, 1e6), lty = 2)
-text(1.6e9, c(1e5, 1e6), c("100k", "1M"))
 
 # Add plot creation time
 text(1.45e9, 1e10, paste("Updated", Sys.Date()), pos = 4)
@@ -62,3 +62,5 @@ r2 <- signif(summary(model)$r.squared[1], 2)
 text(predictionstamps[length(predictionstamps)], 0.9 * predictions[length(predictions)],
      bquote(R^2 == .(r2)), pos = 2)
 ```
+
+Bitcoin is growing very high above the trendline at the moment!
