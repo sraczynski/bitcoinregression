@@ -12,11 +12,14 @@ http://api.bitcoincharts.com/v1/csv/coinbaseUSD.csv.gz
 Warning: the compressed CSV file is currently heavier than 147 MB.
 
 ```{r load_data}
+library(dplyr)
+
 tmp <- tempdir()
 filename <- paste0(tmp, "/coinbaseUSD.csv.gz")
 download.file("http://api.bitcoincharts.com/v1/csv/coinbaseUSD.csv.gz", filename)
 coinbase <- read.csv(gzfile(filename), header = F)
 colnames(coinbase) <- c("timestamp", "price", "xxx")
+coinbase <- coinbase %>% arrange(timestamp)
 ```
 
 Among many models I checked, the one fitting a parabole to the logarithm of the price got me the best fit, with coefficient of determination higher than 0.97.
@@ -63,8 +66,14 @@ text(predictionstamps[length(predictionstamps)], 0.9 * predictions[length(predic
      bquote(R^2 == .(r2)), pos = 2)
 ```
 
-Bitcoin is growing very high above the trendline at the moment!
+Let's see how Bitcoin diverges from the trendline:
 
 ```{r residuals}
-coinbase$residuals <- residuals(model)
+coinbase$residuals <- residuals(model, type = "deviance")
+plot(coinbase$timestamp, coinbase$residuals, type = "l",
+  xlab = "Year", ylab = "Deviance (weighted scaled residual)",  main = "Residual regression error",
+  axes = F, ylim = c(-1,1))
+axis(2); axis(1, at = yearstarts, labels = 2014:2020)
+abline(h = 0, lty = 2)
+abline(v = yearstarts, lty = 2, col = "lightgray")
 ```
